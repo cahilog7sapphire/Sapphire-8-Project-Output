@@ -1,32 +1,24 @@
-'''
-Welcome! Here is the code to our allowance splitter, this simple module can take any number 
-(especially your allowance amount), split into your needs, wants and savings, for effective
-spending, and saving, we now have a new feature called the savings goal, you type your goal
-to save, and it'll show you how long it'll take for you to reach that savings goal, we also
-added a split value mechanic, you input your allowance, and you have the option to add a new
-subcategory on the "needs" category, just type its name, and add the percentage, to make it 
-more personalized and specific for the user, we also added the "lower" string method, so that 
-when the user has the correct spelling but the incorrect casing, it automatically turns the
-incorrect casing to lowercase, so there will be less issues and will be more cleared up and
-usable, we used 2 functions, mainly the AllowanceInput(message), and the AllowanceDisplay
-(total, needs, wants, savings)
-By Sapphire - G8!
-Members: Z. Cahilog, H. Tecson, C. Nituda
-'''
-
 import math
-#1st function, checks if you have an empty answer
-def AllowanceInput(message):
+
+# 1st function: Standardized to handle both strings and numbers while preventing empty inputs
+def AllowanceInput(message, is_numeric=True):
     while True:
-        user_input = input(message)
+        user_input = input(message).strip() # .strip() removes accidental spaces
         
         if user_input == "":
-            print("Error: You didn't type anything.")
+            print("Error: You didn't type anything. Please try again.")
             continue
-        return float(user_input)
+        
+        if is_numeric:
+            try:
+                return float(user_input)
+            except ValueError:
+                print("Error: Please enter a valid number.")
+                continue
+        return user_input
 
 def AllowanceDisplay(total, needs, wants, savings):
-    #Function 2: shows the 50/30/20 breakdown
+    # Function 2: shows the 50/30/20 breakdown
     print("\n--- BUDGET SUMMARY ---")
     print("Total: ₱", total)
     print("Needs (50%): ₱", needs)
@@ -37,18 +29,21 @@ def AllowanceDisplay(total, needs, wants, savings):
 # the main program!!!
 print("---ALLOWANCE SPLITTER---")
 print("Welcome, to our Allowance Splitter! This program will be able to help you split your allowance! (like the name suggests), we've added 2 new features, a savings goal, and a needs division!")
-user_name = input("Hello there! Please enter your name: ")
+
+# Added the check here so the name can't be empty
+user_name = AllowanceInput("Hello there! Please enter your name: ", is_numeric=False)
 
 while True:
-    print("Hello, ", user_name, "!")
-    print("\n[ MENU ]")
+    print("\nHello, ", user_name, "!")
+    print("[ MENU ]")
     print("1. Calculate Allowance")
     print("2. Exit")
     
-    choice = input("Select 1 or 2: ")
+    # Added the check here so the choice can't be empty
+    choice = AllowanceInput("Select 1 or 2: ", is_numeric=False)
 
     if choice == "1":
-        #here is the inputting and processes
+        # here is the inputting and processes
         weekly_cash = AllowanceInput("Enter your weekly allowance: ₱")
         
         needs_amt = weekly_cash * 0.50
@@ -58,15 +53,17 @@ while True:
         # what it shows
         AllowanceDisplay(weekly_cash, needs_amt, wants_amt, savings_amt)
 
-        #the needs division! (by far the most hardest one to make)
-        ask_split = input("Split your Needs (₱" + str(needs_amt) + ")? (yes/no), make sure it adds up ONLY to 100%:: ")
+        # the needs division! 
+        # Using AllowanceInput(..., is_numeric=False) ensures they can't leave "yes/no" blank
+        ask_split = AllowanceInput("Split your Needs (₱" + str(needs_amt) + ")? (yes/no): ", is_numeric=False)
+        
         if ask_split.lower() == "yes":
             items_to_add = int(AllowanceInput("How many sub-categories? "))
             
             percent_count = 0
             for i in range(items_to_add):
-                item_name = input("\nName of item " + str(i+1) + ": ")
-                item_percent = AllowanceInput("Percentage for " + item_name + " (e.g. 20):")
+                item_name = AllowanceInput("Name of item " + str(i+1) + ": ", is_numeric=False)
+                item_percent = AllowanceInput("Percentage for " + item_name + " (e.g. 20): ")
                 
                 if percent_count + item_percent <= 100:
                     cost = needs_amt * (item_percent / 100)
@@ -76,21 +73,18 @@ while True:
                     print("Error: Percent total exceeded 100%!")
 
         # savings goal!!
-        ask_goal = input("\nTrack a savings goal? (yes/no): ")
+        ask_goal = AllowanceInput("Track a savings goal? (yes/no): ", is_numeric=False)
         if ask_goal.lower() == "yes":
-            goal_name = input("What are you saving for? ")
+            goal_name = AllowanceInput("What are you saving for? ", is_numeric=False)
             goal_cost = AllowanceInput("How much does it cost? ₱")
             
-            # Process: math.ceil rounds up to the next full week/day to keep it accurate (i may have used ai to assist me on this part)
             weeks_needed = math.ceil(goal_cost / savings_amt)
             days_needed = weeks_needed * 7
             
-            print("\nTo buy " + goal_name + ", you need to save for " + str(days_needed) + " days, thank you for using this program, you may continue using it!")
+            print("To buy " + goal_name + ", you need to save for " + str(days_needed) + " days.")
 
     elif choice == "2":
         print("Goodbye, " + user_name + "!")
         break
     else:
         print("Invalid choice. Try again.")
-        
-"thank you for using and checking out this program!"
